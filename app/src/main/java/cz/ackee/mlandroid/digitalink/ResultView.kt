@@ -63,6 +63,14 @@ class ResultView @JvmOverloads constructor(
         invalidate()
     }
 
+    private fun drawInk(ink: Ink, paint: Paint) {
+        // draw strokes of ink
+    }
+
+    private fun drawStroke(s: Ink.Stroke, paint: Paint) {
+        // draw stroke
+    }
+
     private fun drawTextIntoBoundingBox(text: String, bb: Rect, textPaint: TextPaint) {
         val arbitraryFixedSize = 20f
         // Set an arbitrary text size to learn how high the text will be.
@@ -85,21 +93,6 @@ class ResultView @JvmOverloads constructor(
 
         // And finally draw the text.
         drawCanvas.drawText(text, bb.left.toFloat(), bb.bottom.toFloat(), textPaint)
-    }
-
-    private fun drawInk(ink: Ink, paint: Paint) {
-        for (s in ink.strokes) {
-            drawStroke(s, paint)
-        }
-    }
-
-    private fun drawStroke(s: Ink.Stroke, paint: Paint) {
-        val path = Path()
-        path.moveTo(s.points[0].x, s.points[0].y)
-        for (p in s.points.drop(1)) {
-            path.lineTo(p.x, p.y)
-        }
-        drawCanvas.drawPath(path, paint)
     }
 
     override fun onDraw(canvas: Canvas) {

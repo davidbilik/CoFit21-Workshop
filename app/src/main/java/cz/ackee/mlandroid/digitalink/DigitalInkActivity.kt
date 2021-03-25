@@ -31,7 +31,7 @@ class DigitalInkActivity : AppCompatActivity() {
 
         binding.btnDownload.setOnClickListener {
             lifecycleScope.launch {
-                digitalInkManager.downloadModel()
+                // download model
             }
         }
 
@@ -51,23 +51,10 @@ class DigitalInkActivity : AppCompatActivity() {
         }
 
         binding.drawingView.onMotionEventListener = { event ->
-            digitalInkManager.processTouchEvent(event)
+            // process touch event
         }
 
-        lifecycleScope.launchWhenStarted {
-            digitalInkManager.downloadedLanguagesStream
-                .collect { downloadedModels ->
-                    val adapter = binding
-                        .languagesSpinner.adapter as? ArrayAdapter<LanguageDropdownItem>
-                    adapter ?: return@collect
-                    (0 until adapter.count).forEach {
-                        val item = adapter.getItem(it)
-                        adapter.getItem(it)?.isDownloaded =
-                            downloadedModels.contains(item?.languageTag)
-                    }
-                    adapter.notifyDataSetChanged()
-                }
-        }
+        setupDownloadedLanguagesObserving()
     }
 
     private fun setupDropdownSpinner(languagesSpinner: Spinner) {
@@ -90,12 +77,33 @@ class DigitalInkActivity : AppCompatActivity() {
                     // just a title item
                     return
                 }
-                digitalInkManager.languageSelected(dropdownItem.languageTag)
+                onLanguageSelected(dropdownItem.languageTag)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // nothing to do
             }
+        }
+    }
+
+    private fun onLanguageSelected(languageTag: String) {
+        // select language
+    }
+
+    private fun setupDownloadedLanguagesObserving() {
+        lifecycleScope.launchWhenStarted {
+            digitalInkManager.downloadedLanguagesStream
+                .collect { downloadedModels ->
+                    val adapter = binding
+                        .languagesSpinner.adapter as? ArrayAdapter<LanguageDropdownItem>
+                    adapter ?: return@collect
+                    (0 until adapter.count).forEach {
+                        val item = adapter.getItem(it)
+                        adapter.getItem(it)?.isDownloaded =
+                            downloadedModels.contains(item?.languageTag)
+                    }
+                    adapter.notifyDataSetChanged()
+                }
         }
     }
 

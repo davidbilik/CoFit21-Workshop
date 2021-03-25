@@ -4,13 +4,6 @@ import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.graphics.drawable.toBitmap
-import androidx.core.graphics.times
-import androidx.core.graphics.toRectF
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.face.Face
-import com.google.mlkit.vision.face.FaceDetection
-import com.google.mlkit.vision.face.FaceDetectorOptions
 import cz.ackee.mlandroid.BottomSheetImageChooser
 import cz.ackee.mlandroid.databinding.ActivityFaceDetectionBinding
 
@@ -39,36 +32,16 @@ class FaceDetectionActivity : AppCompatActivity(), BottomSheetImageChooser.Paren
     }
 
     private fun detectInImage() {
-        val highAccuracyOpts = FaceDetectorOptions.Builder()
-            .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
-            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
-            .enableTracking()
-            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
-            .build()
-        val detector = FaceDetection.getClient(highAccuracyOpts)
-        boundingBoxDrawable.faces = emptyList()
-
-        val bitmap = binding.imgPhoto.drawable.toBitmap()
-        boundingBoxDrawable.originalImageSize = Rect(0, 0, bitmap.width, bitmap.height)
-        detector.process(InputImage.fromBitmap(bitmap, 0))
-            .addOnSuccessListener {
-                boundingBoxDrawable.faces = it
-                binding.txtResult.text = it.toPresentableText()
-            }
+        // detect faces in image
     }
 
     override fun onImageChosen(bitmap: Bitmap) {
         binding.imgPhoto.setImageBitmap(bitmap)
-        boundingBoxDrawable.faces = emptyList()
     }
 
     class BoundingBoxDrawable : Drawable() {
 
-        var faces: List<Face> = emptyList()
-            set(value) {
-                field = value
-                invalidateSelf()
-            }
+        // set faces result
 
         var originalImageSize = Rect(0, 0, 0, 0)
 
@@ -79,12 +52,7 @@ class FaceDetectionActivity : AppCompatActivity(), BottomSheetImageChooser.Paren
         }
 
         override fun draw(canvas: Canvas) {
-            faces.forEach {
-                val faceRect = it.boundingBox.toRectF().times(
-                    bounds.width() / originalImageSize.width().toFloat()
-                )
-                canvas.drawRect(faceRect, boxPaint)
-            }
+            // draw faces
         }
 
         override fun setAlpha(alpha: Int) = Unit
@@ -92,16 +60,5 @@ class FaceDetectionActivity : AppCompatActivity(), BottomSheetImageChooser.Paren
         override fun getOpacity(): Int = PixelFormat.OPAQUE
 
         override fun setColorFilter(colorFilter: ColorFilter?) = Unit
-    }
-}
-
-private fun List<Face>.toPresentableText(): String {
-    return joinToString("\n\n") { face ->
-        buildString {
-            appendLine("id: ${face.trackingId}")
-            appendLine("Smiling probability: ${face.smilingProbability}")
-            appendLine("Left eye opened probability: ${face.leftEyeOpenProbability}")
-            appendLine("Right eye opened probability: ${face.rightEyeOpenProbability}")
-        }
     }
 }

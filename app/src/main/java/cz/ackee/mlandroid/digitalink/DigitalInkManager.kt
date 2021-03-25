@@ -6,7 +6,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 class DigitalInkManager(
     private val modelsManager: ModelsManager,
@@ -35,11 +34,7 @@ class DigitalInkManager(
     }
 
     fun languageSelected(languageTag: String) {
-        try {
-            modelsManager.setupModelForLanguage(languageTag)
-        } catch (e: IllegalArgumentException) {
-            updateStatus(e.message)
-        }
+        // select language in models manager
     }
 
     private fun updateStatus(message: String?) {
@@ -58,23 +53,7 @@ class DigitalInkManager(
     }
 
     fun processTouchEvent(event: MotionEvent) {
-        val action = event.actionMasked
-        val x = event.x
-        val y = event.y
-        val t = System.currentTimeMillis()
-
-        when (action) {
-            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                strokeBuilder.addPoint(
-                    Ink.Point.create(x, y, t)
-                )
-            }
-            MotionEvent.ACTION_UP -> {
-                strokeBuilder.addPoint(Ink.Point.create(x, y, t))
-                inkBuilder.addStroke(strokeBuilder.build())
-                strokeBuilder = Ink.Stroke.builder()
-            }
-        }
+        // process touch event
     }
 
     fun clear() {
@@ -96,17 +75,8 @@ class DigitalInkManager(
             updateStatus("Model not downloaded")
             return null
         }
-        val recognizer = modelsManager.recognizer ?: return null
-        val ink = inkBuilder.build()
-        val recognizedContent = recognizer.recognize(ink).await()
-        val recognizedInkResult = RecognizedInkResult(
-            ink = ink,
-            textResult = recognizedContent.candidates.firstOrNull()?.text ?: ""
-        )
-        updateStatus("Successful recognition: " + recognizedInkResult.textResult)
-        resetCurrentInk()
-
-        return recognizedInkResult
+        // recognize ink in image
+        return null
     }
 }
 
