@@ -33,9 +33,7 @@ class TextRecognitionActivity : AppCompatActivity(), BottomSheetImageChooser.Par
     }
 
     private fun recognizeFromImage() {
-        val imageBitmap = binding.imgPhoto.drawable.toBitmap()
-        textResultsOverlay.originalImageSize = Rect(0, 0, imageBitmap.width, imageBitmap.height)
-
+        val imageBitmap = binding.imgPhoto.drawable?.toBitmap() ?: return
         // Recognize text in image
     }
 
