@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/btn_text_recognition"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Text Recognition" />
+
+    <Button
+        android:id="@+id/btn_digital_ink"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Digital ink" />
+
+    <Button
+        android:id="@+id/btn_face_detection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Face Detection" />
+
+    <Button
+        android:id="@+id/btn_image_classification"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Image Classification" />
+
+
+    <Button
+        android:id="@+id/btn_image_classification_custom_model"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Image Classification (Custom Model)" />
+
+</LinearLayout>
