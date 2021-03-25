@@ -5,10 +5,10 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.toBitmap
-import androidx.core.graphics.times
 import androidx.core.graphics.toRectF
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
+import com.google.mlkit.vision.face.FaceContour
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import cz.ackee.mlandroid.BottomSheetImageChooser
@@ -42,6 +42,7 @@ class FaceDetectionActivity : AppCompatActivity(), BottomSheetImageChooser.Paren
         val highAccuracyOpts = FaceDetectorOptions.Builder()
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
             .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
+            .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
             .enableTracking()
             .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
             .build()
@@ -79,12 +80,27 @@ class FaceDetectionActivity : AppCompatActivity(), BottomSheetImageChooser.Paren
         }
 
         override fun draw(canvas: Canvas) {
+            val scaleFactor = bounds.width() / originalImageSize.width().toFloat()
+            canvas.save()
+            canvas.scale(scaleFactor, scaleFactor)
             faces.forEach {
-                val faceRect = it.boundingBox.toRectF().times(
-                    bounds.width() / originalImageSize.width().toFloat()
-                )
+                val faceRect = it.boundingBox.toRectF()
+
+                val faceContour = it.getContour(FaceContour.FACE)
+                if (faceContour != null) {
+                    val path = Path()
+                    val firstPoint = faceContour.points.first()
+                    path.moveTo(firstPoint.x, firstPoint.y)
+                    faceContour.points.drop(1).forEach {
+                        path.lineTo(it.x, it.y)
+                    }
+                    path.lineTo(firstPoint.x, firstPoint.y)
+                    canvas.drawPath(path, boxPaint)
+                }
                 canvas.drawRect(faceRect, boxPaint)
+
             }
+            canvas.restore()
         }
 
         override fun setAlpha(alpha: Int) = Unit
