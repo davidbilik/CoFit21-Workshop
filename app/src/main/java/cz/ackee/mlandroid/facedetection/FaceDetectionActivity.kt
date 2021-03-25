@@ -43,7 +43,6 @@ class FaceDetectionActivity : AppCompatActivity(), BottomSheetImageChooser.Paren
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
             .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
             .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
-            .enableTracking()
             .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
             .build()
         val detector = FaceDetection.getClient(highAccuracyOpts)
@@ -74,19 +73,25 @@ class FaceDetectionActivity : AppCompatActivity(), BottomSheetImageChooser.Paren
         var originalImageSize = Rect(0, 0, 0, 0)
 
         private val boxPaint = Paint().apply {
-            strokeWidth = 3f
+            strokeWidth = 5f
             style = Paint.Style.STROKE
             color = Color.GREEN
         }
 
+        private val textPaint = Paint().apply {
+            color = Color.RED
+            textSize = 24f
+        }
+
         override fun draw(canvas: Canvas) {
             val scaleFactor = bounds.width() / originalImageSize.width().toFloat()
+            textPaint.textSize = 24f * scaleFactor
             canvas.save()
             canvas.scale(scaleFactor, scaleFactor)
-            faces.forEach {
-                val faceRect = it.boundingBox.toRectF()
+            faces.forEachIndexed { index, face ->
+                val faceRect = face.boundingBox.toRectF()
 
-                val faceContour = it.getContour(FaceContour.FACE)
+                val faceContour = face.getContour(FaceContour.FACE)
                 if (faceContour != null) {
                     val path = Path()
                     val firstPoint = faceContour.points.first()
@@ -97,8 +102,15 @@ class FaceDetectionActivity : AppCompatActivity(), BottomSheetImageChooser.Paren
                     path.lineTo(firstPoint.x, firstPoint.y)
                     canvas.drawPath(path, boxPaint)
                 }
+
                 canvas.drawRect(faceRect, boxPaint)
 
+                canvas.drawText(
+                    index.toString(),
+                    faceRect.left,
+                    faceRect.top + textPaint.textSize,
+                    textPaint
+                )
             }
             canvas.restore()
         }
@@ -114,7 +126,7 @@ class FaceDetectionActivity : AppCompatActivity(), BottomSheetImageChooser.Paren
 private fun List<Face>.toPresentableText(): String {
     return joinToString("\n\n") { face ->
         buildString {
-            appendLine("id: ${face.trackingId}")
+            appendLine("id: ${indexOf(face)}")
             appendLine("Smiling probability: ${face.smilingProbability}")
             appendLine("Left eye opened probability: ${face.leftEyeOpenProbability}")
             appendLine("Right eye opened probability: ${face.rightEyeOpenProbability}")
